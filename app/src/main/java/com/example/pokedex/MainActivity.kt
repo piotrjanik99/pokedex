@@ -1,11 +1,13 @@
 package com.example.pokedex
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,15 +42,21 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     //MainView()
-                    ShowPokemonList(viewModel = viewModel)
+                    ShowPokemonList(viewModel = viewModel, onClick = {name -> navigateToDetailsActivity(name)})
                 }
             }
         }
     }
+
+    fun navigateToDetailsActivity(name: String) {
+        val detailsIntent = Intent(this, DetailsActivity::class.java)
+        detailsIntent.putExtra("CUSTOM_NAME", name)
+        startActivity(detailsIntent);
+    }
 }
 
 @Composable
-fun ShowPokemonList(viewModel: MainViewModel) {
+fun ShowPokemonList(viewModel: MainViewModel, onClick: (String) -> Unit) {
     val uiState by viewModel.immutablePokemonData.observeAsState(UiState())
 
     when {
@@ -59,7 +67,7 @@ fun ShowPokemonList(viewModel: MainViewModel) {
             ErrorView()
         }
         uiState.data != null -> {
-            uiState.data?.let { MyListView(pokemon = it) }
+            uiState.data?.let { MyListView(pokemon = it, onClick = { name -> onClick.invoke(name) }) }
         }
     }
 }
@@ -75,27 +83,27 @@ fun LoadingView() {
 }
 
 @Composable
-fun MyListView(pokemon: List<Pokemon>){
+fun MyListView(pokemon: List<Pokemon>, onClick: (String) -> Unit){
     LazyColumn{
         items(pokemon) {pokemon ->
-            MainView(name = pokemon.name)
+            MainView(name = pokemon.name, onClick = { name -> onClick.invoke(name) })
         }
     }
 
 }
 @Composable
-fun MainView(name: String){
+fun MainView(name: String, onClick: (String) -> Unit) {
 
-    Column{
+    Column(
+        modifier = Modifier.clickable { onClick.invoke(name) }
+    ) {
         Text(text = name, color= Color.Black)
         Text(text = "Id", fontSize=10.sp, fontStyle = FontStyle.Normal, color = Color.Red)
-        for(i in 1..15) {
         AsyncImage(
-            model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/$i.png",
+            model = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/1.png",
             contentDescription = "pokemon",
             placeholder = painterResource(R.drawable.notfound)
         )
-            }
     }
 }
 
@@ -103,6 +111,6 @@ fun MainView(name: String){
 @Composable
 fun GreetingPreview() {
     PokedexTheme {
-        MainView("a")
+        MainView("a", {})
     }
 }

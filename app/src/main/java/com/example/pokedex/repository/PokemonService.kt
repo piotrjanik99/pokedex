@@ -10,6 +10,9 @@ interface PokemonService {
     @GET("/api/v2/pokemon")
     suspend fun getPokemonResponse(): Response<PokemonResponse>
 
+    @GET("/api/v2/pokemon/{name}")
+    suspend fun getPokemonDetails(): Response<PokemonDetails>
+
     companion object {
         private const val POKEMON_URL = "https://pokeapi.co/"
 
