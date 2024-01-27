@@ -4,6 +4,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
 
 interface PokemonService {
 
@@ -11,7 +12,7 @@ interface PokemonService {
     suspend fun getPokemonResponse(): Response<PokemonResponse>
 
     @GET("/api/v2/pokemon/{name}")
-    suspend fun getPokemonDetails(): Response<PokemonDetails>
+    suspend fun getPokemonDetails(@Path("name") name: String): Response<PokemonDetails>
 
     companion object {
         private const val POKEMON_URL = "https://pokeapi.co/"
